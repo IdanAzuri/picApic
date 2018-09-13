@@ -28,7 +28,7 @@ def download_image(url):
 	out_dir = "results"
 	
 	try:
-		http = urllib3.PoolManager(1)
+		http = urllib3.PoolManager(100)
 		response = http.request('GET', url)
 		soup = BeautifulSoup(response.data.decode('utf-8'), features="lxml")
 		link = soup.find("img")
@@ -75,7 +75,7 @@ def loader():
 	key_url_list = parse_data('scenicOrNot.tsv')
 	#     print (key_url_list.tolist()[10:])
 	download_image(key_url_list.tolist())
-	pool = multiprocessing.Pool(processes=10)  # Num of CPUs
+	pool = multiprocessing.Pool(processes=100)  # Num of CPUs
 	key_url_list = key_url_list.tolist()
 	pool.map(download_image, key_url_list)
 	pool.close()

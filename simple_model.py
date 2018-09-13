@@ -10,11 +10,9 @@ import cv2
 from torch.utils.data import Dataset
 
 
-transform = transforms.Compose([
-	transforms.ToPILImage(),
-	### other PyTorch transforms
-	transforms.ToTensor()
-	])
+transform = transforms.Compose([transforms.ToPILImage(), ### other PyTorch transforms
+	transforms.ToTensor()])
+
 
 class SenicDataset(Dataset):
 	'''
@@ -35,7 +33,7 @@ class SenicDataset(Dataset):
 	
 	def __init__(self, root_dir, transform=None):
 		self.root_dir = root_dir
-		self.categories = sorted(os.listdir(root_dir)) #TODO ceil avg from csv
+		self.categories = sorted(os.listdir(root_dir))  # TODO ceil avg from csv
 		self.cat2idx = dict(zip(self.categories, range(len(self.categories))))
 		self.idx2cat = dict(zip(self.cat2idx.values(), self.cat2idx.keys()))
 		self.files = []
@@ -44,7 +42,7 @@ class SenicDataset(Dataset):
 				if f.endswith('.jpg'):
 					o = {}
 					o['img_path'] = dirpath + '/' + f
-					o['category'] = self.cat2idx[dirpath[dirpath.find('/')+1:]]
+					o['category'] = self.cat2idx[dirpath[dirpath.find('/') + 1:]]
 					self.files.append(o)
 		self.transform = transform
 	
@@ -61,24 +59,25 @@ class SenicDataset(Dataset):
 		
 		return {'image': image, 'category': category}
 
+
 dset = SenicDataset('images', transform=transform)
 print('######### Dataset class created #########')
 print('Number of images: ', len(dset))
 print('Number of categories: ', len(dset.categories))
 print('Sample image shape: ', dset[0]['image'].shape, end='\n\n')
 
-
 dataloader = torch.utils.data.DataLoader(dset, batch_size=4, shuffle=True, num_workers=4)
+
 
 ### Define your network below
 class Net(nn.Module):
 	def __init__(self):
 		super(Net, self).__init__()
-		self.fc1 = nn.Linear(180**2 * 3, 84)
+		self.fc1 = nn.Linear(180 ** 2 * 3, 84)
 		self.fc2 = nn.Linear(84, 36)
 	
 	def forward(self, x):
-		x = x.view(-1, 180**2 * 3)
+		x = x.view(-1, 180 ** 2 * 3)
 		x = F.relu(self.fc1(x))
 		x = self.fc2(x)
 		return x

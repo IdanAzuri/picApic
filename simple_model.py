@@ -1,15 +1,15 @@
+import os
+
+import cv2
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
-from torch.autograd import Variable
-import torchvision
 import torchvision.transforms as transforms
-import os
-import cv2
+from torch.autograd import Variable
 from torch.utils.data import Dataset
-
-
+import pandas as pd
+import numpy as np
 transform = transforms.Compose([transforms.ToPILImage(), ### other PyTorch transforms
 	transforms.ToTensor()])
 
@@ -32,17 +32,20 @@ class SenicDataset(Dataset):
 	'''
 	
 	def __init__(self, root_dir, transform=None):
+		self.data = pd.read_csv('scenicOrNot.tsv', sep='\t')
+		self.data['cat'] = np.ceil(self.data['Average'])
 		self.root_dir = root_dir
-		self.categories = sorted(os.listdir(root_dir))  # TODO ceil avg from csv
-		self.cat2idx = dict(zip(self.categories, range(len(self.categories))))
-		self.idx2cat = dict(zip(self.cat2idx.values(), self.cat2idx.keys()))
+		self.categories = self.data['cat']
+		# self.cat2idx = dict(zip(self.categories, range(len(self.categories))))
+		# self.idx2cat = dict(zip(self.cat2idx.values(), self.cat2idx.keys()))
 		self.files = []
 		for (dirpath, dirnames, filenames) in os.walk(self.root_dir):
 			for f in filenames:
 				if f.endswith('.jpg'):
+					row= self.data[self.data['Geograph URI'].str.contains(f.split(".")[0])]
 					o = {}
 					o['img_path'] = dirpath + '/' + f
-					o['category'] = self.cat2idx[dirpath[dirpath.find('/') + 1:]]
+					o['category'] = row['cat']
 					self.files.append(o)
 		self.transform = transform
 	
@@ -57,10 +60,10 @@ class SenicDataset(Dataset):
 		if self.transform:
 			image = self.transform(image)
 		
-		return {'image': image, 'category': category}
+		return {'image': image, 'category': float(category)}
 
 
-dset = SenicDataset('images', transform=transform)
+dset = SenicDataset('results', transform=transform)
 print('######### Dataset class created #########')
 print('Number of images: ', len(dset))
 print('Number of categories: ', len(dset.categories))

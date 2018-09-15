@@ -88,7 +88,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # functions to show an image
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+# Assume that we are on a CUDA machine, then this should print a CUDA device:
+
+print(device)
 
 def imshow(img):
 	img = img / 2 + 0.5     # unnormalize
@@ -137,7 +141,7 @@ class Net(nn.Module):
 
 
 net = Net()
-
+net.to(device)
 ########################################################################
 # 3. Define a Loss function and optimizer
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -159,9 +163,10 @@ optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 for epoch in range(2):  # loop over the dataset multiple times
 	
 	running_loss = 0.0
-	for i, data in enumerate(trainloader, 0):
+	for i, (inputs, targets) in enumerate(trainloader, 0):
 		# get the inputs
-		inputs, labels = data
+		inputs, targets = inputs.to(device), targets.to(device)
+		
 		
 		# zero the parameter gradients
 		optimizer.zero_grad()

@@ -62,6 +62,8 @@ import torchvision.transforms as transforms
 ########################################################################
 # The output of torchvision datasets are PILImage images of range [0, 1].
 # We transform them to Tensors of normalized range [-1, 1].
+from torch.backends import cudnn
+
 
 transform = transforms.Compose(
 	[transforms.ToTensor(),
@@ -88,7 +90,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # functions to show an image
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 # Assume that we are on a CUDA machine, then this should print a CUDA device:
 
@@ -141,7 +143,10 @@ class Net(nn.Module):
 
 
 net = Net()
-net.to(device)
+net = net.to(device)
+if device == 'cuda':
+	net = torch.nn.DataParallel(net)
+	cudnn.benchmark = True
 ########################################################################
 # 3. Define a Loss function and optimizer
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

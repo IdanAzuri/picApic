@@ -25,7 +25,7 @@ def parse_data(data_file):
 
 
 def download_image(url):
-	out_dir = "results"
+	out_dir = "dataset"
 	
 	try:
 		http = urllib3.PoolManager(100)
@@ -34,9 +34,9 @@ def download_image(url):
 		link = soup.find("img")
 		img = link.get("src")
 		filename = os.path.join(out_dir, img.split("/")[-1])
-		filename = filename.split("_")[0] + ".jpg"
-		print(filename)
-		print(img)
+		filename = str(filename.split("_")[0]) + ".jpg"
+		# print(filename)
+		# print(img)
 		if os.path.exists(filename):
 			print('Image {} already exists. Skipping download.'.format(filename))
 			return
@@ -44,31 +44,13 @@ def download_image(url):
 		urlretrieve(img, filename)
 		print("{} downloaded".format(filename))
 		return
-	except:
-		print('Warning: Could not download image from {}'.format(url))
+	except Exception as e:
+		print('Warning: Could not download image from {}, {}'.format(url, e))
 		return
 
 
-# try:  # pil_image = Image.open(BytesIO(image_data))  # print("SAVED")  # except:  # 	print('Warning: Failed to parse image')  # 	return
-
-
-# try:
-# 	pil_image_rgb = pil_image.convert('RGB')
-# 	print("SAVED")
-# except:
-# 	print('Warning: Failed to convert image  to RGB')
-# 	return
-#
-# try:
-# 	pil_image_rgb.save(filename, format='JPEG', quality=90)
-# 	print("SAVED")
-# except:
-# 	print('Warning: Failed to save image {}'.format(filename))
-# 	return
-
-
 def loader():
-	out_dir = "results"
+	out_dir = "datasest"
 	if not os.path.exists(out_dir):
 		os.mkdir(out_dir)
 	
@@ -82,7 +64,32 @@ def loader():
 	pool.terminate()
 
 
+def split(dir="datasest"):
+	import os
+	import pathlib
+	source1 = dir
+	train_set = "train_dir/"
+	test_set = "test_dir/"
+	valid_set = "valid_dir/"
+	pathlib.Path(train_set).mkdir(parents=True, exist_ok=True)
+	pathlib.Path(test_set).mkdir(parents=True, exist_ok=True)
+	pathlib.Path(valid_set).mkdir(parents=True, exist_ok=True)
+	
+	files = os.listdir(source1)
+	import shutil
+	import numpy as np
+	for f in files:
+		rand = np.random.rand(1)
+		if rand < 0.2:
+			shutil.copy(source1 + '/' + f, test_set + '/' + f)
+		elif 0.2 < rand < 0.9:
+			shutil.copy(source1 + '/' + f, train_set + '/' + f)
+		else:
+			shutil.copy(source1 + '/' + f, valid_set + '/' + f)
+
+
 # arg1 : data_file.csv
 # arg2 : output_dir
 if __name__ == '__main__':
 	loader()
+	split("results")

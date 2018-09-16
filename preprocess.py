@@ -92,4 +92,4 @@ def split(dir="datasest"):
 # arg2 : output_dir
 if __name__ == '__main__':
 	loader()
-	split("results")
+	split()

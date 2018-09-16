@@ -104,8 +104,8 @@ def imshow(img):
 
 # get some random training images
 dataiter = iter(trainloader)
-images, labels = dataiter.next()
-
+images, labels = dataiter.__next__()
+images, labels =images.to(device), labels.to(device)
 # show images
 imshow(torchvision.utils.make_grid(images))
 # print labels
@@ -145,6 +145,7 @@ class Net(nn.Module):
 net = Net()
 net = net.to(device)
 if device == 'cuda':
+	print("Let's use", torch.cuda.device_count(), "GPUs!")
 	net = torch.nn.DataParallel(net)
 	cudnn.benchmark = True
 ########################################################################
@@ -171,7 +172,6 @@ for epoch in range(2):  # loop over the dataset multiple times
 	for i, (inputs, targets) in enumerate(trainloader, 0):
 		# get the inputs
 		inputs, targets = inputs.to(device), targets.to(device)
-		
 		
 		# zero the parameter gradients
 		optimizer.zero_grad()

@@ -2,6 +2,7 @@
 # !/usr/local/bin/python3
 
 import os
+import pathlib
 from urllib.request import urlretrieve
 
 import pandas as pd
@@ -40,7 +41,7 @@ def download_image(url):
 		if os.path.exists(filename):
 			print('Image {} already exists. Skipping download.'.format(filename))
 			return
-		
+		print(filename)
 		urlretrieve(img, filename)
 		print("{} downloaded".format(filename))
 		return
@@ -50,9 +51,8 @@ def download_image(url):
 
 
 def loader():
-	out_dir = "datasest"
-	if not os.path.exists(out_dir):
-		os.mkdir(out_dir)
+	out_dir = "dataset"
+	pathlib.Path(out_dir).mkdir(parents=True, exist_ok=True)
 	
 	key_url_list = parse_data('scenicOrNot.tsv')
 	#     print (key_url_list.tolist()[10:])
@@ -64,9 +64,9 @@ def loader():
 	pool.terminate()
 
 
-def split(dir="datasest"):
+def split(dir="dataset"):
 	import os
-	import pathlib
+	
 	source1 = dir
 	train_set = "train_dir/"
 	test_set = "test_dir/"
